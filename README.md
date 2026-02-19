@@ -1,4 +1,4 @@
-# Finance Tracker API
+# Finance Tracker API 📊
 
 ## 🧰 Built With
 
