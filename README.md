@@ -31,6 +31,7 @@ This project includes **JWT authentication**, **SQLite database**, **Docker supp
 
 ## 📂 Project Structure
 
+\`\`\`
 finance-tracker-api/
 │
 ├── app/
@@ -49,8 +50,7 @@ finance-tracker-api/
 ├── Dockerfile
 ├── docker-compose.yml
 └── README.md
-
-
+\`\`\`
 
 ---
 
@@ -59,10 +59,13 @@ finance-tracker-api/
 The API uses **JWT Bearer tokens**.
 
 1. Register a user  
-2. Log in to receive an `access_token`  
-3. Use the token in the `Authorization` header:
+2. Log in to receive an \`access_token\`  
+3. Use the token in the \`Authorization\` header:
 
+\`\`\`
 Authorization: Bearer <your_token_here>
+\`\`\`
+
 ---
 
 ## 📌 API Endpoints
@@ -70,56 +73,56 @@ Authorization: Bearer <your_token_here>
 ### **Auth**
 | Method | Endpoint        | Description        |
 |--------|------------------|--------------------|
-| POST   | `/auth/register` | Register a new user |
-| POST   | `/auth/login`    | Login and get JWT   |
+| POST   | \`/auth/register\` | Register a new user |
+| POST   | \`/auth/login\`    | Login and get JWT   |
 
 ### **Expenses**
 | Method | Endpoint            | Description               |
 |--------|----------------------|---------------------------|
-| POST   | `/expenses/`         | Create an expense         |
-| GET    | `/expenses/`         | Get all expenses          |
-| GET    | `/expenses/{id}`     | Get a single expense      |
-| PUT    | `/expenses/{id}`     | Update an expense         |
-| DELETE | `/expenses/{id}`     | Delete an expense         |
+| POST   | \`/expenses/\`         | Create an expense         |
+| GET    | \`/expenses/\`         | Get all expenses          |
+| GET    | \`/expenses/{id}\`     | Get a single expense      |
+| PUT    | \`/expenses/{id}\`     | Update an expense         |
+| DELETE | \`/expenses/{id}\`     | Delete an expense         |
 
 ---
 
 ## 🧪 Example cURL Commands
 
 ### Create an expense
-
+\`\`\`
 curl -X POST "http://127.0.0.1:8000/expenses/" \
--H "Content-Type: application/json" \
--H "Authorization: Bearer <token>" \
--d '{
-"title": "Groceries",
-"description": "Weekly food shopping",
-"amount": 45.58,
-"category": "Food"
-}'
-
-
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{
+    "title": "Groceries",
+    "description": "Weekly food shopping",
+    "amount": 45.58,
+    "category": "Food"
+  }'
+\`\`\`
 
 ### Get all expenses
-
+\`\`\`
 curl -X GET "http://127.0.0.1:8000/expenses/" \
--H "Authorization: Bearer <token>"
-
-
+  -H "Authorization: Bearer <token>"
+\`\`\`
 
 ---
 
 ## 🐳 Running with Docker
 
+\`\`\`
 docker-compose up --build
-
+\`\`\`
 
 ---
 
 ## 🧭 Running Locally (without Docker)
 
+\`\`\`
 uvicorn app.main:app --reload
-
+\`\`\`
 
 ---
 
