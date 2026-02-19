@@ -31,7 +31,7 @@ This project includes **JWT authentication**, **SQLite database**, **Docker supp
 
 ## 📂 Project Structure
 
-\`\`\`
+```
 finance-tracker-api/
 │
 ├── app/
@@ -50,7 +50,7 @@ finance-tracker-api/
 ├── Dockerfile
 ├── docker-compose.yml
 └── README.md
-\`\`\`
+```
 
 ---
 
