@@ -1,5 +1,16 @@
 # Finance Tracker API
 
+## 🧰 Built With
+
+![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.110-009688?logo=fastapi&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-3-003B57?logo=sqlite&logoColor=white)
+![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0-red?logo=python&logoColor=white)
+![Pydantic](https://img.shields.io/badge/Pydantic-v2-ef4444?logo=pydantic&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?logo=docker&logoColor=white)
+![Uvicorn](https://img.shields.io/badge/Uvicorn-ASGI-4B8BBE?logo=python&logoColor=white)
+
+
 A lightweight, production‑ready **FastAPI** backend for tracking personal expenses.  
 This project includes **JWT authentication**, **SQLite database**, **Docker support**, and a clean, modular architecture suitable for real-world deployments.
 
