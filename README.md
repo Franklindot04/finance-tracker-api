@@ -152,8 +152,27 @@ uvicorn app.main:app --reload
 - Add categories & budgets
 - Add monthly reports
 - Add user-specific dashboards
-- Deploy to AWS (Lambda or EC2)
-- Add CI/CD pipeline
+- Deploy to AWS ECS Fargate with RDS PostgreSQL
+- Add CI/CD pipeline (GitHub Actions → AWS)
+
+---
+
+## ☁️ Production Deployment on AWS
+
+This project is designed to run locally with **SQLite** and scale to production on **AWS** using:
+
+- **Amazon ECS Fargate** for running the Dockerized FastAPI application
+- **Amazon RDS (PostgreSQL)** for a managed, production-ready database
+- **Application Load Balancer (ALB)** for routing traffic to ECS tasks
+- **AWS CloudWatch** for logs and basic monitoring
+
+In production, configuration is provided via environment variables, for example:
+
+- `DATABASE_URL` – PostgreSQL connection string (RDS)
+- `JWT_SECRET_KEY` – secret key for signing JWTs
+- `JWT_ALGORITHM` – algorithm used for tokens (e.g. HS256)
+
+Locally, the app can still use **SQLite** by default, while the same container image can be deployed to ECS Fargate with a different `DATABASE_URL`.
 
 ---
 
