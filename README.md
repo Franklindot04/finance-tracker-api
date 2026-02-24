@@ -178,6 +178,6 @@ Locally, the app can still use **SQLite** by default, while the same container i
 
 ## 📄 License
 
-MIT License
+MIT License..
 
 
