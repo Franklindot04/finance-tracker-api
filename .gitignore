@@ -1,0 +1,10 @@
+terraform.tfvars
+__pycache__/
+*.pyc
+.DS_Store
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
+.terraform.lock.hcl
+.vscode/
+finance.db

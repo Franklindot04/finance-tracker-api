@@ -6,16 +6,7 @@ resource "aws_ecs_cluster" "this" {
 }
 
 # -----------------------------------------
-# CloudWatch Log Group
-# -----------------------------------------
-resource "aws_cloudwatch_log_group" "ecs" {
-  name              = "/ecs/${var.project_name}"
-  retention_in_days = 7
-}
-
-# -----------------------------------------
 # IAM Role for ECS Task Execution
-# Allows ECS to pull images from ECR and write logs
 # -----------------------------------------
 resource "aws_iam_role" "ecs_task_execution_role" {
   name = "${var.project_name}-ecs-execution-role"
@@ -38,7 +29,7 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
 }
 
 # -----------------------------------------
-# IAM Role for ECS Task (App Permissions)
+# IAM Role for ECS Task (Application Role)
 # -----------------------------------------
 resource "aws_iam_role" "ecs_task_role" {
   name = "${var.project_name}-ecs-task-role"
@@ -54,54 +45,15 @@ resource "aws_iam_role" "ecs_task_role" {
     }]
   })
 }
-# -----------------------------------------
-# Application Load Balancer
-# -----------------------------------------
-resource "aws_lb" "app_alb" {
-  name               = "${var.project_name}-alb"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = [aws_security_group.alb_sg.id]
-  subnets            = [aws_subnet.public_a.id]
 
-  tags = {
-    Name = "${var.project_name}-alb"
-  }
+# -----------------------------------------
+# CloudWatch Log Group
+# -----------------------------------------
+resource "aws_cloudwatch_log_group" "ecs" {
+  name              = "/ecs/${var.project_name}"
+  retention_in_days = 7
 }
 
-# -----------------------------------------
-# Target Group
-# -----------------------------------------
-resource "aws_lb_target_group" "app_tg" {
-  name        = "${var.project_name}-tg"
-  port        = 8000
-  protocol    = "HTTP"
-  target_type = "ip"
-  vpc_id      = aws_vpc.main.id
-
-  health_check {
-    path                = "/docs"
-    healthy_threshold   = 2
-    unhealthy_threshold = 2
-    timeout             = 5
-    interval            = 30
-    matcher             = "200-399"
-  }
-}
-
-# -----------------------------------------
-# Listener (HTTP)
-# -----------------------------------------
-resource "aws_lb_listener" "http" {
-  load_balancer_arn = aws_lb.app_alb.arn
-  port              = 80
-  protocol          = "HTTP"
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.app_tg.arn
-  }
-}
 # -----------------------------------------
 # ECS Task Definition
 # -----------------------------------------
@@ -120,41 +72,82 @@ resource "aws_ecs_task_definition" "app" {
       name      = "app"
       image     = var.container_image
       essential = true
-      portMappings = [
-        {
-          containerPort = 8000
-          hostPort      = 8000
-          protocol      = "tcp"
-        }
-      ]
+
+      portMappings = [{
+        containerPort = 8000
+        hostPort      = 8000
+        protocol      = "tcp"
+      }]
+
       environment = [
-        {
-          name  = "DATABASE_URL"
-          value = "postgresql+psycopg2://${var.db_username}:${var.db_password}@${aws_db_instance.postgres.address}:5432/${var.db_name}"
-        },
-        {
-          name  = "JWT_SECRET_KEY"
-          value = var.jwt_secret_key
-        },
-        {
-          name  = "JWT_ALGORITHM"
-          value = "HS256"
-        },
-        {
-          name  = "ACCESS_TOKEN_EXPIRE_MINUTES"
-          value = "30"
-        }
+        { name = "DATABASE_HOST", value = aws_db_instance.postgres.address },
+        { name = "DATABASE_USER", value = var.db_username },
+        { name = "DATABASE_PASSWORD", value = var.db_password },
+        { name = "DATABASE_NAME", value = var.db_name },
+        { name = "JWT_SECRET_KEY", value = var.jwt_secret_key }
       ]
+
       logConfiguration = {
         logDriver = "awslogs"
         options = {
-          awslogs-group         = "/ecs/${var.project_name}"
+          awslogs-group         = aws_cloudwatch_log_group.ecs.name
           awslogs-region        = var.aws_region
           awslogs-stream-prefix = "ecs"
         }
       }
     }
   ])
+}
+
+# -----------------------------------------
+# Application Load Balancer
+# -----------------------------------------
+resource "aws_lb" "app_alb" {
+  name               = "${var.project_name}-alb"
+  load_balancer_type = "application"
+  internal           = false
+
+  subnets = [
+    aws_subnet.public_a.id,
+    aws_subnet.public_b.id
+  ]
+
+  security_groups = [aws_security_group.alb_sg.id]
+}
+
+# -----------------------------------------
+# Target Group
+# -----------------------------------------
+resource "aws_lb_target_group" "app_tg" {
+  name     = "${var.project_name}-tg"
+  port     = 8000
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.main.id
+  target_type = "ip"
+
+  health_check {
+    path                = "/docs"
+    protocol            = "HTTP"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    matcher             = "200-399"
+  }
+}
+
+# -----------------------------------------
+# ALB Listener
+# -----------------------------------------
+resource "aws_lb_listener" "http" {
+  load_balancer_arn = aws_lb.app_alb.arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.app_tg.arn
+  }
 }
 
 # -----------------------------------------
@@ -168,8 +161,12 @@ resource "aws_ecs_service" "app" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets         = [aws_subnet.private_a.id]
-    security_groups = [aws_security_group.ecs_sg.id]
+    subnets = [
+      aws_subnet.private_a.id,
+      aws_subnet.private_b.id
+    ]
+    security_groups  = [aws_security_group.ecs_sg.id]
+    assign_public_ip = false
   }
 
   load_balancer {
@@ -177,6 +174,4 @@ resource "aws_ecs_service" "app" {
     container_name   = "app"
     container_port   = 8000
   }
-
-  depends_on = [aws_lb_listener.http]
 }

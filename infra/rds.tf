@@ -1,11 +1,11 @@
 # -----------------------------------------
-# RDS Subnet Group
-# Ensures RDS is placed in private subnets
+# RDS Subnet Group (must span 2 AZs)
 # -----------------------------------------
 resource "aws_db_subnet_group" "rds_subnets" {
   name       = "${var.project_name}-rds-subnets"
   subnet_ids = [
-    aws_subnet.private_a.id
+    aws_subnet.private_a.id,
+    aws_subnet.private_b.id
   ]
 
   tags = {
@@ -19,7 +19,6 @@ resource "aws_db_subnet_group" "rds_subnets" {
 resource "aws_db_instance" "postgres" {
   identifier              = "${var.project_name}-db"
   engine                  = "postgres"
-  engine_version          = "15.4"
   instance_class          = "db.t3.micro"
   allocated_storage       = 20
 
