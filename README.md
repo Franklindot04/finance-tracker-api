@@ -274,7 +274,7 @@ Use the ALB DNS name from Terraform outputs:
 
 ---
 
-## 📸 Screenshots (Suggested)
+## 📸 Screenshots 
 
 ### Screenshot 01 — API Overview (POST /auth/register)
 ![Register User](assets/screenshots/screenshot-01-api-overview.png)
