@@ -1,6 +1,18 @@
 # Finance Tracker API 📊  
 Production‑Ready FastAPI Backend with AWS ECS Fargate & Terraform
 
+A lightweight, modular, and production‑ready **FastAPI** backend for tracking personal expenses — fully containerized with **Docker** and deployed to **AWS ECS Fargate** using **Terraform**.
+
+This project demonstrates real‑world DevOps practices:
+- Infrastructure as Code (**Terraform**)
+- Containerization (**Docker**)
+- Cloud deployment (**AWS ECS Fargate + ALB + RDS**)
+- Secure VPC networking
+- Logs and observability with **CloudWatch**
+- CI/CD‑ready architecture
+
+---
+
 ## 📚 Table of Contents
 
 - [Built With](#-built-with)
@@ -18,17 +30,9 @@ Production‑Ready FastAPI Backend with AWS ECS Fargate & Terraform
 - [Deploying to AWS](#-deploying-to-aws-terraform--ecs-fargate)
 - [Screenshots](#-screenshots)
 - [Troubleshooting](#-troubleshooting--finance-calculator-api-aws-ecs-ecr-vpc)
+- [AWS Resource Cleanup / Shutdown Guide](#-aws-resource-cleanup--shutdown-guide)
+- [Cost Optimization Tips](#-cost-optimization-tips-aws)
 - [License](#-license)
-
-A lightweight, modular, and production‑ready **FastAPI** backend for tracking personal expenses — fully containerized with **Docker** and deployed to **AWS ECS Fargate** using **Terraform**.
-
-This project demonstrates real‑world DevOps practices:
-- Infrastructure as Code (**Terraform**)
-- Containerization (**Docker**)
-- Cloud deployment (**AWS ECS Fargate + ALB + RDS**)
-- Secure VPC networking
-- Logs and observability with **CloudWatch**
-- CI/CD‑ready architecture
 
 ---
 
