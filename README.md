@@ -438,6 +438,179 @@ Without S3 access, the ECS task cannot download the actual container filesystem.
 
 This is one of the most common — and most confusing — ECS networking issues.
 
+## 🧹 AWS Resource Cleanup / Shutdown Guide  
+To prevent unnecessary AWS charges, make sure all infrastructure created for this project is fully destroyed. This section outlines the exact steps to safely shut down every component deployed with Terraform and AWS ECS.
+
+---
+
+### ✅ 1. Destroy All Terraform‑Managed Resources  
+Terraform created the majority of your infrastructure, including:
+
+- VPC, subnets, route tables  
+- NAT Gateway (one of the most expensive resources)  
+- ECS Cluster, Task Definitions, Services  
+- Application Load Balancer (ALB)  
+- RDS PostgreSQL instance  
+- Security groups, IAM roles  
+- CloudWatch log groups  
+
+From the `infra/` directory:
+
+```bash
+terraform destroy
+```
+
+This command removes **all** Terraform‑managed AWS resources.  
+Wait for the destroy process to complete fully before moving on.
+
+---
+
+### ✅ 2. Delete ECR Images (Not Managed by Terraform)  
+Terraform does **not** delete ECR repositories or images.  
+To avoid storage charges:
+
+1. Go to **ECR → Repositories**
+2. Open your repository (e.g., `finance-api`)
+3. Select all images → **Delete**
+4. Then delete the repository itself
+
+---
+
+### ✅ 3. Delete CloudWatch Log Groups (If Terraform Didn’t Create Them)  
+ECS automatically creates log groups if they don’t exist.
+
+To remove them:
+
+1. Go to **CloudWatch → Logs → Log groups**
+2. Search for:
+   - `/ecs/finance-api`
+   - `/aws/ecs/containerinsights/...`
+3. Delete them
+
+---
+
+### ✅ 4. Verify No ECS Tasks or Services Are Running  
+Even after `terraform destroy`, double‑check:
+
+1. Go to **ECS → Clusters**
+2. Ensure:
+   - No clusters remain  
+   - No services  
+   - No running tasks  
+
+If anything remains, delete it manually.
+
+---
+
+### ✅ 5. Delete Orphaned Network Interfaces (ENIs)  
+Sometimes ECS or VPC endpoints leave ENIs behind.
+
+To clean them:
+
+1. Go to **EC2 → Network Interfaces**
+2. Filter by **status: available**
+3. Delete any ENIs related to:
+   - ECS
+   - VPC endpoints
+   - Load balancers
+
+---
+
+### ✅ 6. Remove S3 Buckets (If You Created Any)  
+If you used S3 for Terraform backend or storage:
+
+1. Empty the bucket  
+2. Delete the bucket  
+
+---
+
+### ✅ 7. Confirm NAT Gateway Is Gone  
+NAT Gateways cost money **per hour**, even when idle.
+
+After `terraform destroy`, verify:
+
+1. Go to **VPC → NAT Gateways**
+2. Ensure **none remain**
+
+---
+
+### 🟩 Final Check — Your AWS Account Should Be Clean  
+After completing all steps, verify:
+
+- No VPCs  
+- No subnets  
+- No ALBs  
+- No ECS clusters  
+- No RDS instances  
+- No ECR repositories  
+- No CloudWatch log groups  
+- No ENIs  
+- No NAT Gateways  
+
+Your AWS bill should now drop to **near zero**.
+
+## 💰 Cost Optimization Tips (AWS)
+
+Running workloads on AWS can become expensive if resources are left running unintentionally. Below are practical, real‑world cost‑saving strategies that apply directly to this project’s architecture.
+
+---
+
+### 🟦 1. Prefer On‑Demand Fargate Tasks Only When Needed  
+ECS Fargate charges per second. To reduce costs:
+
+- Stop services when not actively testing  
+- Use **Fargate Spot** for non‑critical workloads  
+- Keep CPU/memory definitions minimal (e.g., 0.25 vCPU / 0.5 GB)
+
+---
+
+### 🟧 2. Avoid NAT Gateway Charges  
+NAT Gateways cost **per hour + per GB**. They are one of the most expensive components in small projects.
+
+To reduce costs:
+
+- Use **VPC Endpoints** (S3, ECR API, ECR DKR) to avoid NAT traffic  
+- Destroy NAT Gateway when not needed  
+- For dev environments, consider **public subnets only** (no NAT)
+
+---
+
+### 🟩 3. Use Small RDS Instances or Replace with SQLite for Dev  
+RDS instances incur:
+
+- Hourly cost  
+- Storage cost  
+- Backup cost  
+
+For development:
+
+- Use **SQLite** locally  
+- Use **RDS t3.micro** or **t4g.micro** for minimal cost  
+- Turn off automatic backups for dev environments  
+- Destroy RDS when not in use
+
+---
+
+### 🟪 4. Clean Up ECR Images Regularly  
+ECR charges for storage. Over time, unused images accumulate.
+
+Best practices:
+
+- Delete old image tags  
+- Enable **ECR lifecycle policies** (e.g., keep last 5 images)  
+- Remove entire repositories when shutting down the project
+
+---
+
+### 🟫 5. Remove Unused CloudWatch Log Groups  
+CloudWatch Logs charge per GB stored.
+
+To reduce costs:
+
+- Delete old log groups  
+- Set retention policies (e.g., 7 or 14 days)  
+- Avoid storing large debug logs in production
+
 
 ## 📄 License
 
