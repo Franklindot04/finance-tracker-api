@@ -276,17 +276,58 @@ Use the ALB DNS name from Terraform outputs:
 
 ## 📸 Screenshots (Suggested)
 
-Add these to the README once captured:
-- Terraform project structure  
-- `terraform apply` successful output  
-- AWS VPC view (subnets, routes)  
-- ECS Cluster and Service  
-- Task Definition details  
-- ECR repository with pushed image  
-- RDS PostgreSQL instance  
-- ALB configuration + target group (healthy)  
-- CloudWatch logs for ECS task  
-- FastAPI `/docs` via ALB DNS  
+### Screenshot 01 — API Overview (POST /auth/register)
+![Register User](assets/screenshots/screenshot-01-api-overview.png)
+
+### Screenshot 02 — Docker Compose Build + Startup Logs
+![Docker Compose Build](assets/screenshots/screenshot-02-docker-compose-startup.png)
+
+### Screenshot 03 — API Overview (After Authentication Added)
+![API Overview Auth](assets/screenshots/screenshot-03-api-overview-auth.png)
+
+### Screenshot 04 — Successful User Registration (200 OK)
+![Successful Registration](assets/screenshots/screenshot-04-successful-registration.png)
+
+### Screenshot 05 — Successful Login (JWT Token Returned)
+![Successful Login](assets/screenshots/screenshot-05-successful-login.png)
+
+### Screenshot 06 — Successful POST (Create Expense)
+Command used:
+```bash
+    curl -X POST "http://127.0.0.1:8000/expenses/" \
+    -H "Authorization: Bearer <your_jwt_token>"
+```
+![Create Expense](assets/screenshots/screenshot-06-post-create-expense.png)
+
+### Screenshot 07 — Successful GET (Retrieve Expenses)
+Command used:
+```bash
+    curl -X GET "http://127.0.0.1:8000/expenses/" \
+    -H "Authorization: Bearer <your_jwt_token>"
+```
+![Get/Retrieve Expenses](assets/screenshots/screenshot-07-get-retrieve-expenses.png)
+
+### Screenshot 08 — ECS Service Overview (Cluster, Service, Desired/Running Count)
+![ECS Service Overview](assets/screenshots/screenshot-08-ecs-service-overview.png)
+
+### Screenshot 09 — ALB Target Group Showing Healthy ECS Task
+![ALB Target Group Healthy](assets/screenshots/screenshot-09-alb-target-group-healthy.png)
+
+### Screenshot 10 — FastAPI Documentation Served Through ALB
+![FastAPI Docs via ALB](assets/screenshots/screenshot-10-fastapi-docs-alb.png)
+
+### Screenshot 11 — Terraform Project Structure
+![Terraform Project Structure](assets/screenshots/screenshot-11-terraform-project-structure.png)
+
+### Screenshot 12 — Terraform Apply Output
+Command used:
+```bash
+    terraform apply -refresh-only
+```
+![Terraform Apply Output](assets/screenshots/screenshot-12-terraform-apply-output.png)
+
+### Screenshot 13 — CloudWatch Logs (ECS Task Output)
+![CloudWatch Logs](assets/screenshots/screenshot-13-cloudwatch-logs-ecs.png)
 
 ---
 
