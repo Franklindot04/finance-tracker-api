@@ -1,6 +1,25 @@
 # Finance Tracker API 📊  
 Production‑Ready FastAPI Backend with AWS ECS Fargate & Terraform
 
+## 📚 Table of Contents
+
+- [Built With](#-built-with)
+- [Features](#-features)
+- [Tech Stack](#-tech-stack)
+- [High‑Level Architecture](#-high-level-architecture)
+- [Project Structure](#-project-structure)
+- [Authentication Flow](#-authentication-flow)
+- [API Endpoints](#-api-endpoints)
+- [Example cURL Commands](#-example-curl-commands)
+- [Running Locally (Docker)](#-running-locally-docker)
+- [Running Locally (without Docker)](#-running-locally-without-docker)
+- [Environment Variables](#-environment-variables)
+- [AWS Infrastructure (Terraform)](#-aws-infrastructure-terraform)
+- [Deploying to AWS](#-deploying-to-aws-terraform--ecs-fargate)
+- [Screenshots](#-screenshots)
+- [Troubleshooting](#-troubleshooting--finance-calculator-api-aws-ecs-ecr-vpc)
+- [License](#-license)
+
 A lightweight, modular, and production‑ready **FastAPI** backend for tracking personal expenses — fully containerized with **Docker** and deployed to **AWS ECS Fargate** using **Terraform**.
 
 This project demonstrates real‑world DevOps practices:
@@ -359,6 +378,66 @@ Command used:
 - Add WAF in front of ALB  
 
 ---
+
+## 🛠️ Troubleshooting — Finance Calculator API (AWS ECS, ECR, VPC)
+
+### ❗ ECS `CannotPullContainerError` — Root Cause & Fix
+
+**Symptom**  
+ECS task fails with:
+
+```
+CannotPullContainerError: failed to copy: httpReadSeeker: failed open: dial tcp <ECR-IP>:443: i/o timeout
+```
+
+The task remains in **STOPPED** state and never reaches **RUNNING**.
+
+---
+
+### **Root Cause**
+
+When running ECS Fargate tasks in **private subnets**, the task must access:
+
+- ECR API endpoint  
+- ECR DKR endpoint  
+- **S3 Gateway endpoint** (required for downloading image layers)
+
+Even if the ECR endpoints are correct, the task **cannot pull the image** unless the **S3 endpoint is attached to the same route table** used by the private subnets.
+
+In this project:
+
+- Private subnets used route table:  
+  **`rtb-02396af79ff6455d4`**
+- But the S3 endpoint was attached to a different route table:  
+  **`rtb-0f985c9995115a4c4`** (public)
+
+This prevented the ECS task ENI from reaching S3, causing the image pull to fail.
+
+---
+
+### **Fix**
+
+Attach the S3 VPC endpoint to the private route table:
+
+1. Go to **VPC → Endpoints**
+2. Open the S3 endpoint (`com.amazonaws.<region>.s3`)
+3. Click **Manage route tables**
+4. Select the private route table:  
+   **`rtb-02396af79ff6455d4`**
+5. Save changes
+6. Force a new ECS deployment
+
+After this change, the ECS task could reach S3, download image layers, and start successfully.
+
+---
+
+### **Why This Matters**
+
+ECR stores **image metadata** in ECR, but stores **image layers** in S3.  
+Without S3 access, the ECS task cannot download the actual container filesystem.
+
+This is one of the most common — and most confusing — ECS networking issues.
+
 
 ## 📄 License
 
