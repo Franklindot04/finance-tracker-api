@@ -596,7 +596,7 @@ For development:
 ---
 
 ### 🟪 4. Clean Up ECR Images Regularly  
-ECR charges for storage. Over time, unused images accumulate.
+ECR charges for storage, Over time, unused images accumulate.
 
 Best practices:
 
