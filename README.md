@@ -431,7 +431,7 @@ Attach the S3 VPC endpoint to the private route table:
 5. Save changes
 6. Force a new ECS deployment
 
-After this change, the ECS task could reach S3, download image layers, and start successfully.
+After this change, the ECS task could reach S3, download image layers and start successfully.
 
 ---
 
