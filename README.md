@@ -613,7 +613,7 @@ To reduce costs:
 
 - Delete old log groups  
 - Set retention policies (e.g., 7 or 14 days)  
-- Avoid storing large debug logs in production
+- Avoid storing large debug logs in production.
 
 
 ## 📄 License
